@@ -193,6 +193,157 @@
             margin: 0 auto 2rem auto;
         }
 
+        /* Audio Player Bar */
+        .audio-bar {
+            max-width: 980px;
+            margin: 2rem auto 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(22,33,44,0.95), rgba(30,42,56,0.9));
+            border: 1px solid rgba(138,107,63,0.2);
+            border-radius: 16px;
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+        }
+
+        .audio-bar h3 {
+            text-align: center;
+            color: var(--gold);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .audio-tracks {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .audio-track {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.85rem 1.25rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(138,107,63,0.12);
+            border-radius: 10px;
+            transition: all 0.25s ease;
+        }
+
+        .audio-track:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(138,107,63,0.3);
+        }
+
+        .audio-track.playing {
+            background: rgba(40,74,104,0.15);
+            border-color: var(--accent);
+        }
+
+        .track-play-btn {
+            background: linear-gradient(135deg, var(--accent), #3d678b);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(40,74,104,0.3);
+        }
+
+        .track-play-btn:hover {
+            transform: scale(1.08);
+        }
+
+        .track-play-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .track-play-btn .icon-play { margin-left: 3px; }
+        .track-play-btn .icon-stop { display: none; }
+
+        .audio-track.playing .track-play-btn {
+            background: linear-gradient(135deg, #f43f5e, #5d1e1e);
+            animation: pulse-glow 2s infinite;
+        }
+        .audio-track.playing .icon-play { display: none; }
+        .audio-track.playing .icon-stop { display: block; }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
+            70% { box-shadow: 0 0 0 18px rgba(244, 63, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+        }
+
+        .track-info {
+            flex: 1;
+        }
+
+        .track-title {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .track-lang {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .track-status {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .audio-track.playing .track-status {
+            color: #f43f5e;
+            font-weight: 600;
+        }
+
+        .track-progress {
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            margin-top: 0.75rem;
+            overflow: hidden;
+            display: none;
+        }
+
+        .audio-track.playing .track-progress {
+            display: block;
+        }
+
+        .track-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            border-radius: 3px;
+            transition: width 0.3s linear;
+        }
+
+        @media (max-width: 768px) {
+            .audio-bar { margin: 1.5rem 1rem 0; padding: 1.25rem; }
+            .audio-track { flex-wrap: wrap; }
+            .track-status { min-width: auto; text-align: left; flex-basis: 100%; margin-top: 0.25rem; }
+        }
+
         /* Document Layout - Proposal Paper */
         .document {
             max-width: 980px;
@@ -632,6 +783,50 @@
                 </div>
             </section>
         </div>
+
+        <!-- AUDIO PLAYER BAR -->
+        <div class="audio-bar">
+            <h3>▶ Audio Briefings</h3>
+            <div class="audio-tracks">
+                <div class="audio-track" id="track-arabic">
+                    <button class="track-play-btn" onclick="toggleTrack('arabic')" title="Play Arabic briefing">
+                        <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                    </button>
+                    <div class="track-info">
+                        <div class="track-title">Arabic Briefing</div>
+                        <div class="track-lang">العربية — Sovereign Continuity Overview</div>
+                    </div>
+                    <div class="track-status" id="status-arabic">Ready</div>
+                    <div class="track-progress"><div class="track-progress-fill" id="progress-arabic"></div></div>
+                </div>
+                <div class="audio-track" id="track-french-turkey">
+                    <button class="track-play-btn" onclick="toggleTrack('french-turkey')" title="Play French briefing">
+                        <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                    </button>
+                    <div class="track-info">
+                        <div class="track-title">French Briefing</div>
+                        <div class="track-lang">Français — Aperçu de la Continuité Souveraine</div>
+                    </div>
+                    <div class="track-status" id="status-french-turkey">Ready</div>
+                    <div class="track-progress"><div class="track-progress-fill" id="progress-french-turkey"></div></div>
+                </div>
+                <div class="audio-track" id="track-netherlands">
+                    <button class="track-play-btn" onclick="toggleTrack('netherlands')" title="Play Dutch briefing">
+                        <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                    </button>
+                    <div class="track-info">
+                        <div class="track-title">Dutch Briefing</div>
+                        <div class="track-lang">Nederlands — Overzicht Soevereine Continuïteit</div>
+                    </div>
+                    <div class="track-status" id="status-netherlands">Ready</div>
+                    <div class="track-progress"><div class="track-progress-fill" id="progress-netherlands"></div></div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script>
@@ -688,6 +883,76 @@
         let originalDocHTML = "";
         let currentLang = "en";
         let currentLangLabel = "English";
+
+        // Audio Player State
+        let currentTrackAudio = null;
+        let currentTrackId = null;
+
+        function toggleTrack(trackId) {
+            const trackEl = document.getElementById('track-' + trackId);
+            const statusEl = document.getElementById('status-' + trackId);
+            const progressEl = document.getElementById('progress-' + trackId);
+
+            // If clicking the currently playing track, stop it
+            if (currentTrackId === trackId && currentTrackAudio && !currentTrackAudio.paused) {
+                currentTrackAudio.pause();
+                currentTrackAudio.currentTime = 0;
+                trackEl.classList.remove('playing');
+                statusEl.innerText = 'Ready';
+                progressEl.style.width = '0%';
+                currentTrackAudio = null;
+                currentTrackId = null;
+                return;
+            }
+
+            // Stop any other playing track
+            if (currentTrackAudio && currentTrackId) {
+                currentTrackAudio.pause();
+                currentTrackAudio.currentTime = 0;
+                const prevTrack = document.getElementById('track-' + currentTrackId);
+                const prevStatus = document.getElementById('status-' + currentTrackId);
+                const prevProgress = document.getElementById('progress-' + currentTrackId);
+                if (prevTrack) prevTrack.classList.remove('playing');
+                if (prevStatus) prevStatus.innerText = 'Ready';
+                if (prevProgress) prevProgress.style.width = '0%';
+            }
+
+            // Play new track
+            const audio = new Audio('audio/' + trackId + '.wav');
+            currentTrackAudio = audio;
+            currentTrackId = trackId;
+
+            trackEl.classList.add('playing');
+            statusEl.innerText = 'Loading...';
+
+            audio.addEventListener('playing', () => {
+                statusEl.innerText = '● LIVE';
+            });
+
+            audio.addEventListener('timeupdate', () => {
+                if (audio.duration) {
+                    const pct = (audio.currentTime / audio.duration) * 100;
+                    progressEl.style.width = pct + '%';
+                }
+            });
+
+            audio.addEventListener('ended', () => {
+                trackEl.classList.remove('playing');
+                statusEl.innerText = 'Complete';
+                progressEl.style.width = '100%';
+                currentTrackAudio = null;
+                currentTrackId = null;
+            });
+
+            audio.addEventListener('error', () => {
+                trackEl.classList.remove('playing');
+                statusEl.innerText = 'Error';
+                currentTrackAudio = null;
+                currentTrackId = null;
+            });
+
+            audio.play();
+        }
         const translationCache = new Map();
 
         // Initialization
