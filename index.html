@@ -193,78 +193,6 @@
             margin: 0 auto 2rem auto;
         }
 
-        /* Action Bar (Play Button) */
-        .action-bar {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 1rem;
-            justify-content: center;
-            padding: 0.75rem 1rem 2rem;
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 50;
-        }
-
-        .play-btn {
-            background: linear-gradient(135deg, var(--accent), #3d678b);
-            color: #fff;
-            border: 1px solid rgba(40, 74, 104, 0.25);
-            border-radius: 50%;
-            width: 68px;
-            height: 68px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 10px 22px rgba(40, 74, 104, 0.22), inset 0 1px 0 rgba(255,255,255,0.2);
-            transition: all 0.25s ease;
-            position: relative;
-        }
-
-        .play-btn::before {
-            content: '';
-            position: absolute;
-            top: -5px; left: -5px; right: -5px; bottom: -5px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(40,74,104,0.35), rgba(138,107,63,0.25));
-            z-index: -1;
-            opacity: 0.3;
-            filter: blur(12px);
-            transition: opacity 0.3s ease;
-        }
-
-        .play-btn:hover { transform: translateY(-2px); }
-        .play-btn:hover::before { opacity: 0.55; filter: blur(16px); }
-
-        .play-btn svg {
-            width: 35px; height: 35px; fill: currentColor;
-            margin-left: 6px; 
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-        }
-
-        .play-btn.playing {
-            background: linear-gradient(135deg, var(--live), #5d1e1e);
-            box-shadow: 0 10px 24px rgba(143, 45, 45, 0.28);
-            animation: pulse-glow 2s infinite;
-        }
-
-        .play-btn.playing::before { background: linear-gradient(135deg, rgba(143,45,45,0.45), rgba(93,30,30,0.25)); }
-        .play-btn.playing svg { margin-left: 0; }
-
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.5); }
-            70% { box-shadow: 0 0 0 25px rgba(244, 63, 94, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
-        }
-
-        .status-text {
-            color: var(--accent); font-size: 0.9rem; font-weight: 600;
-            letter-spacing: 0.08em; text-transform: uppercase; min-height: 24px;
-        }
-
-        #stopIcon { display: none; }
-
         /* Document Layout - Proposal Paper */
         .document {
             max-width: 980px;
@@ -400,7 +328,6 @@
             }
 
             header,
-            .action-bar,
             #translation-overlay {
                 display: none !important;
             }
@@ -430,8 +357,7 @@
 
             .document::before,
             .document::after,
-            .hero::before,
-            .play-btn::before {
+            .hero::before {
                 display: none;
             }
         }
@@ -447,7 +373,6 @@
             }
             h1 { font-size: 2.5rem; }
             h2.subtitle { font-size: 1rem; }
-            .action-bar { flex-direction: column; padding-bottom: 1.25rem; }
             .document {
                 margin: 0 1rem;
             }
@@ -493,15 +418,6 @@
                 <h1>The Sovereign Continuity Layer</h1>
                 <h2 class="subtitle">The full Eburon proposal for sovereign digital resilience, offline AI continuity, and crisis decision-support for defense ministries.</h2>
             </section>
-        </div>
-
-        <!-- PLAY BUTTON (Kept outside translatable containers to prevent LLM from breaking it) -->
-        <div class="action-bar">
-            <button class="play-btn" id="playBtn" onclick="toggleAudio()" title="Play Whitepaper">
-                <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                <svg id="stopIcon" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
-            </button>
-            <div class="status-text" id="statusText">Initialize Secure Audio</div>
         </div>
 
         <!-- TRANSLATABLE DOCUMENT SECTION -->
@@ -768,8 +684,6 @@
         ];
 
         // Global State Variables
-        let currentAudio = null;
-        let isPlaying = false;
         let originalHeroHTML = "";
         let originalDocHTML = "";
         let currentLang = "en";
@@ -901,100 +815,6 @@
             }
         }
 
-        // TEXT TO SPEECH VIA EBURON TTS API
-        async function toggleAudio() {
-            const apiKey = prompt("Enter your EBURON API Key for audio playback:");
-            const statusText = document.getElementById('statusText');
-            const playBtn = document.getElementById('playBtn');
-            const playIcon = document.getElementById('playIcon');
-            const stopIcon = document.getElementById('stopIcon');
-
-            if (!apiKey || !apiKey.trim()) {
-                return;
-            }
-
-            // Stop logic
-            if (isPlaying && currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                isPlaying = false;
-                playBtn.classList.remove('playing');
-                playIcon.style.display = 'block';
-                stopIcon.style.display = 'none';
-                statusText.innerText = "Audio Stream Terminated";
-                statusText.style.color = "var(--text-muted)";
-                return;
-            }
-
-            // Play logic
-            statusText.innerText = "Establishing Secure Audio Uplink...";
-            statusText.style.color = "var(--grad-1)";
-            playBtn.style.pointerEvents = "none"; 
-
-            // Extract the CURRENT text of the page (which might be translated already)
-            const docText = document.getElementById('translatable-doc').innerText.replace(/\n\s*\n/g, '\n');
-            
-            // Limit text size to ~3000 chars for browser TTS demo speed
-            const promptText = `Read the following text aloud in a warm, authoritative, and professional tone in ${currentLangLabel}. Text: \n\n${docText.substring(0, 3000)}...`; 
-
-            const payload = {
-                "contents": [
-                    { "role": "user", "parts": [{ "text": promptText }] }
-                ],
-                "generationConfig": {
-                    "responseModalities": ["audio"],
-                    "temperature": 1,
-                    "speechConfig": { "voiceConfig": { "prebuiltVoiceConfig": { "voiceName": "Charon" } } }
-                }
-            };
-
-            try {
-                statusText.innerText = `Synthesizing ${currentLang} Audio...`;
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.error?.message || "Secure Uplink Failed");
-                }
-
-                const data = await response.json();
-                const base64Audio = data.candidates[0].content.parts[0].inlineData.data;
-                const audioMimeType = data.candidates[0].content.parts[0].inlineData.mimeType || "audio/wav";
-
-                currentAudio = new Audio(`data:${audioMimeType};base64,${base64Audio}`);
-
-                currentAudio.onplay = () => {
-                    isPlaying = true;
-                    playBtn.classList.add('playing');
-                    playIcon.style.display = 'none';
-                    stopIcon.style.display = 'block';
-                    statusText.innerText = `Transmitting Audio (${currentLang}) // LIVE`;
-                    statusText.style.color = "#f43f5e"; // Live Status Red
-                };
-
-                currentAudio.onended = () => {
-                    isPlaying = false;
-                    playBtn.classList.remove('playing');
-                    playIcon.style.display = 'block';
-                    stopIcon.style.display = 'none';
-                    statusText.innerText = "Transmission Complete";
-                    statusText.style.color = "var(--text-muted)";
-                };
-
-                currentAudio.play();
-
-            } catch (error) {
-                console.error(error);
-                statusText.innerText = "Error: " + error.message;
-                statusText.style.color = "#f43f5e";
-            } finally {
-                playBtn.style.pointerEvents = "auto";
-            }
-        }
     </script>
 </body>
 </html>
